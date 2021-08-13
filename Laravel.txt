@@ -1,0 +1,57 @@
+8/13
+I studied about Routing in Laravel
+basic routes: Route:get('foo', function(){return "success!";})
+
+multiple router:
+Route::match(['get', 'post'], '/', function () {
+    //
+});
+
+Route::any('/', function () {
+    //
+});
+
+CSRF protection: 
+<form method="POST" action="/profile">
+    @csrf
+    ...
+</form>
+if you don't use @csrf, it will be rejected
+
+Redirect Route: Route::redirect('/here', '/there');
+
+When you need only view, you can use view: Route::view('/welcome', 'welcome');
+
+Also you can send parameter: Route::get('user/{id}', function ($id) {
+    return 'User '.$id;
+});
+
+you can make format of parameters using where method:
+Route::get('user/{name}', function ($name) {
+    //
+})->where('name', '[A-Za-z]+');
+
+You can make global format to add pattern
+public function boot()
+{
+    Route::pattern('id', '[0-9]+');
+
+    parent::boot();
+}
+
+Route Prefixes:
+Route::prefix('admin')->group(function () {
+    Route::get('users', function () {
+        // Matches The "/admin/users" URL
+    });
+});
+
+Route Limiting:
+60times join for 1 min
+Route::middleware('auth:api', 'throttle:60,1')->group(function () {
+    Route::get('/user', function () {
+        //
+    });
+});
+
+
