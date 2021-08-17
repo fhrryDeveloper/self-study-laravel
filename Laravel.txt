@@ -54,5 +54,56 @@ Route::middleware('auth:api', 'throttle:60,1')->group(function () {
     });
 });
 
-8/16
+8/17
+Middleware
+Middleware provide a convenient mechanism for filtering HTTP requests entering your application.
+Creating Middleware 
+php artisan make:middleware CheckAge
+You can create middleware using above command.
+All Middlewares will place in App/HTTP/Middleware.
+This is middleware example:
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+
+class CheckAge
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @return mixed
+     */
+    public function handle($request, Closure $next)
+    {
+        if ($request->age <= 200) {
+            return redirect('home');
+        }
+
+        return $next($request);
+    }
+}
+
+global middleware will be place in the $middleware property of your app/Http/Kernal.php class.
+Assigning Middleware To Routes:
+Route::get('admin/profile', function () {
+    //
+})->middleware('auth');
+You may also assign multiple middleware to the route:
+
+Route::get('/', function () {
+    //
+})->middleware('first', 'second');
+We can use $middlewarePriority property of your app/Http/Kernel.php file for sort middleware order
+Middleware parameters may be specified when defining the route by separating the middleware name and parameters with a :. Multiple parameters should be delimited by commas:
+
+Route::put('post/{id}', function ($id) {
+    //
+})->middleware('role:editor');
+
+8/18
+
 
