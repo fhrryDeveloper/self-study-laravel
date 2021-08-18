@@ -105,5 +105,83 @@ Route::put('post/{id}', function ($id) {
 })->middleware('role:editor');
 
 8/18
+CSRF Protection
+CSRF is  Cross-site request forgeries. This is a type or malicious exploit whereby unuthorized commands
+are performed on behalf of an authenticated user.
+Anytime you define an HTML form in your application, you should include a hidden CSRF token field in the form so that the CSRF protection middleware can validate the request. You may use the @csrf Blade directive to generate the token field:
+example: <form method="POST" action="/profile">
+    @csrf
+    ...
+</form>
+If you use axios HTTP library, this token generate automatically, but if not, you should add manually
+If you want to except some uri from CSRF protection, you can user $except property of the VerifyCsrfToken middleware
+example:
+protected $except = [
+        'stripe/*',
+        'http://example.com/foo/bar',
+        'http://example.com/foo/*',
+    ];
+X-CSRF-TOKEN
+<meta name="csrf-token" content="{{ csrf_token() }}">
+$.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+});
+There is X-XSRF-TOKEN too..
+
+Controllers
+Instead of defining all of your request handling logic as Closures in route files, you may wish to organize this behavior using Controller classes.
+Controllers are stored in the app/Http/Controllers directory.
+Basic Controllers
+-Defining Controllers
+-Controllers & Namespaces
+-Single Action Controllers
+Controller Middleware
+Resource Controllers
+-Partial Resource Routes
+-Nested Resources
+-Naming Resource Routes
+-Naming Resource Route Parameters
+-Scoping Resource Routes
+-Localizing Resource URIs
+-Supplementing Resource Controllers
+Dependency Injection & Controllers
+Route Caching
+You can define a route to this controller action like so:
+Route::get('user/{id}', 'UserController@show');
+Namespaces: Route::get('foo', 'Photos\AdminController@method');
+If you would like to define a controller that only handles a single action, you may place a single __invoke method on the controller:
+example: public function __invoke($id)
+    {
+        return view('user.profile', ['user' => User::findOrFail($id)]);
+    }
+When registering routes for single action controllers, you do not need to specify a method:
+
+Route::get('user/{id}', 'ShowProfile');
+making invokable controller command: php artisan make:controller ShowProfile --invokable
+Controller Middleware
+Middleware may be assigned to the controller's routes in your route files:
+Route::get('profile', 'UserController@show')->middleware('auth');
+Using the make:controller Artisan command, we can quickly create such a controller:
+php artisan make:controller PhotoController --resource
+You may register many resource controllers at once by passing an array to the resources method:
+Route::resources([
+    'photos' => 'PhotoController',
+    'posts' => 'PostController',
+]);
+php artisan make:controller PhotoController --resource --model=Photo
+<form action="/foo/bar" method="POST">
+    @method('PUT')
+</form>
+Naming Resource Route: Route::resource('photos', 'PhotoController')->names([
+    'create' => 'photos.build'
+]);
+Route Caching
+If you active route caching, router register speed will be 100X faster
+generate cache: php artisan route:cache
+remove cache: php artisan route:clear
+
+8/18
 
 
