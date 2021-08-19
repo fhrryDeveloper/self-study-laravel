@@ -183,5 +183,66 @@ generate cache: php artisan route:cache
 remove cache: php artisan route:clear
 
 8/18
+Requests
+Accessing The Request
+-Request Path & Method
+-PSR-7 Requests
+Input Trimming & Normalization
+Retrieving Input
+-Old Input
+-Cookies
+Files
+-Retrieving Uploaded Files
+-Storing Uploaded Files
 
+Retrieving The Request Path
+The path method returns the request's path information. So, if the incoming request is targeted at http://domain.com/foo/bar, the path method will return foo/bar:
+$uri = $request->path();
+
+To retrieve the full URL for the incoming request you may use the url or fullUrl methods. The url method will return the URL without the query string, while the fullUrl method includes the query string:
+$url = $request->url();
+$url = $request->fullUrl();
+Retrieving An Input Value
+Using a few simple methods, you may access all of the user input from your Illuminate\Http\Request instance without worrying about which HTTP verb was used for the request. Regardless of the HTTP verb, the input method may be used to retrieve user input:
+$name = $request->input('name');
+Multivalue is possible
+Retrieving Input From The Query String
+While the input method retrieves values from entire request payload (including the query string), the query method will only retrieve values from the query string:
+$name = $request->query('name');
+Multivalue is possible
+Retrieving Input Via Dynamic Properties
+$name = $request->name;
+Retrieving JSON Input Values
+$name = $request->input('user.name');
+Retrieving Boolean Input Values
+$archived = $request->boolean('archived');
+Determining If An Input Value Is Present
+if ($request->has('name')) {
+    //
+}
+if ($request->filled('name')) {
+    //
+}
+if ($request->missing('name')) {
+    //
+}
+Retrieving Old Input
+To retrieve flashed input from the previous request, use the old method on the Request instance. The old method will pull the previously flashed input data from the session:
+$username = $request->old('username');
+Attaching Cookies To Responses
+return response('Hello World')->cookie(
+    'name', 'value', $minutes
+);
+File Paths & Extensions
+$path = $request->photo->path();
+$extension = $request->photo->extension();
+File storing
+$path = $request->photo->store('images');
+$path = $request->photo->store('images', 's3');
+Configuring Trusted Proxies
+protected $proxies = [
+        '192.168.1.1',
+        '192.168.1.2',
+    ];
+For all proxies, we can use '*'
 
