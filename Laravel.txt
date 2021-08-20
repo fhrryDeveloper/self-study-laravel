@@ -246,3 +246,68 @@ protected $proxies = [
     ];
 For all proxies, we can use '*'
 
+8/20
+HTTP Responses
+
+Creating Responses
+-Attaching Headers To Responses
+-Attaching Cookies To Responses
+-Cookies & Encryption
+Redirects
+-Redirecting To Named Routes
+-Redirecting To Controller Actions
+-Redirecting To External Domains
+-Redirecting With Flashed Session Data
+Other Response Types
+-View Responses
+-JSON Responses
+-File Downloads
+-File Responses
+Response Macros
+
+Creating Response
+Route::get('/', function () {
+    return 'Hello World';
+});
+response can be string and array, object.
+Attach header and cookies to response
+return response($content)
+                ->header('Content-Type', $type)
+                ->cookie('name', 'value', $minutes);
+Redirect
+Route::get('dashboard', function () {
+    return redirect('home/dashboard');
+});
+Redirecting To Named Routes
+return redirect()->route('login');
+Redirecting To Controller Actions
+return redirect()->action('HomeController@index');
+Redirecting To External Domains
+return redirect()->away('https://www.google.com');
+View Responses
+return response()
+            ->view('hello', $data, 200)
+            ->header('Content-Type', $type);
+JSON Responses
+return response()->json([
+    'name' => 'Abigail',
+    'state' => 'CA',
+]);
+File Downloads
+return response()->download($pathToFile);
+return response()->download($pathToFile, $name, $headers);
+return response()->download($pathToFile)->deleteFileAfterSend();
+
+Streamed Downloads
+return response()->streamDownload(function () {
+    echo GitHub::api('repo')
+                ->contents()
+                ->readme('laravel', 'laravel')['contents'];
+}, 'laravel-readme.md');
+File Responses
+return response()->file($pathToFile);
+return response()->file($pathToFile, $headers);
+Response Macros
+If you would like to define a custom response that you can re-use in a variety of your routes and controllers, you may use the macro method on the Response facade. For example, from a service provider's boot method:
+
+8/21
