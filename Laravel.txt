@@ -311,3 +311,62 @@ Response Macros
 If you would like to define a custom response that you can re-use in a variety of your routes and controllers, you may use the macro method on the Response facade. For example, from a service provider's boot method:
 
 8/21
+Views
+Creating Views
+Passing Data To Views
+-Sharing Data With All Views
+View Composers
+Optimizing Views
+
+Views are stored in the resources/views directory.
+<html>
+    <body>
+        <h1>Hello, {{ $name }}</h1>
+    </body>
+</html>
+Route::get('/', function () {
+    return view('greeting', ['name' => 'James']);
+});
+"Dot" notation may be used to reference nested views. For example, if your view is stored at resources/views/admin/profile.blade.php, you may reference it like so:
+return view('admin.profile', $data);
+If you need to determine if a view exists, you may use the View facade. The exists method will return true if the view exists:
+use Illuminate\Support\Facades\View;
+if (View::exists('emails.customer')) {
+    //
+}
+Passing Data To Views
+return view('greetings', ['name' => 'Victoria']);
+return view('greeting')->with('name', 'Victoria');
+Sharing Data With All Views
+public function boot()
+    {
+        View::share('key', 'value');
+    }
+View Composers
+public function boot()
+    {
+        // Using class based composers...
+        View::composer(
+            'profile', 'App\Http\View\Composers\ProfileComposer'
+        );
+
+        // Using Closure based composers...
+        View::composer('dashboard', function ($view) {
+            //
+        });
+    }
+Attaching A Composer To Multiple Views
+View::composer(
+    ['profile', 'dashboard'],
+    'App\Http\View\Composers\MyViewComposer'
+);
+View::composer('*', function ($view) {
+    //
+});
+View Createors
+View::creator('profile', 'App\Http\View\Creators\ProfileCreator');
+Optimizing Views
+Compiling views during the request negatively impacts performance, so Laravel provides the view:cache Artisan command to precompile all of the views utilized by your application
+php artisan view:cache
+You may use the view:clear command to clear the view cache:
+php artisan view:clear
