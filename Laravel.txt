@@ -370,3 +370,83 @@ Compiling views during the request negatively impacts performance, so Laravel pr
 php artisan view:cache
 You may use the view:clear command to clear the view cache:
 php artisan view:clear
+
+8/23
+URL Generation
+Introduction
+The Basics
+-Generating Basic URLs
+-Accessing The Current URL
+URLs For Named Routes
+-Signed URLs
+
+URLs For Controller Actions
+Default Values
+The url helper may be used to generate arbitrary URLs for your application.
+$post = App\Post::find(1);
+echo url("/posts/{$post->id}");
+
+Accessing The Current URL
+echo url()->current();
+echo url()->full();
+echo url()->previous();
+echo URL::current();
+
+URLs For Named Routes
+Route::get('/post/{post}', function () {
+    //
+})->name('post.show');
+echo route('post.show', ['post' => 1]);
+echo route('post.show', ['post' => $post]);
+Route::get('/post/{post}/comment/{comment}', function () {
+    //
+})->name('comment.show');
+echo route('comment.show', ['post' => 1, 'comment' => 3]);
+
+Signed URLs
+use Illuminate\Support\Facades\URL;
+return URL::signedRoute('unsubscribe', ['user' => 1]);
+use Illuminate\Support\Facades\URL;
+return URL::temporarySignedRoute(
+    'unsubscribe', now()->addMinutes(30), ['user' => 1]
+);
+-Validating Signed Route Requests
+use Illuminate\Http\Request;
+Route::get('/unsubscribe/{user}', function (Request $request) {
+    if (! $request->hasValidSignature()) {
+        abort(401);
+    }
+    // ...
+})->name('unsubscribe');
+protected $routeMiddleware = [
+    'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
+];
+Route::post('/unsubscribe/{user}', function (Request $request) {
+    // ...
+})->name('unsubscribe')->middleware('signed');
+
+URLs For Controller Actions
+$url = action('HomeController@index');
+use App\Http\Controllers\HomeController;
+$url = action([HomeController::class, 'index']);
+$url = action('UserController@profile', ['id' => 1]);
+
+Default Values
+Route::get('/{locale}/posts', function () {
+    //
+})->name('post.index');
+It is cumbersome to always pass the locale every time you call the route helper. So, you may use the URL::defaults method to define a default value for this parameter that will always be applied during the current request. You may wish to call this method from a route middleware so that you have access to the current request:
+<?php
+namespace App\Http\Middleware;
+use Closure;
+use Illuminate\Support\Facades\URL;
+
+class SetDefaultLocaleForUrls
+{
+    public function handle($request, Closure $next)
+    {
+        URL::defaults(['locale' => $request->user()->locale]);
+
+        return $next($request);
+    }
+}
