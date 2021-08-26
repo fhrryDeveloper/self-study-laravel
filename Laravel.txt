@@ -450,3 +450,19 @@ class SetDefaultLocaleForUrls
         return $next($request);
     }
 }
+
+8/24
+HTTP Session
+Introduction
+-Configuration
+-Driver Prerequisites
+Using The Session
+-Retrieving Data
+-Storing Data
+-Flash Data
+-Deleting Data
+-Regenerating The Session ID
+Session Blocking
+Adding Custom Session Drivers
+-Implementing The Driver
+-Registering The Driver
