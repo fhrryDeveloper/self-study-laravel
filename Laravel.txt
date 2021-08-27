@@ -468,3 +468,74 @@ Adding Custom Session Drivers
 -Registering The Driver
 
 8/25
+8/27
+file - sessions are stored in storage/framework/sessions.
+cookie - sessions are stored in secure, encrypted cookies.
+database - sessions are stored in a relational database.
+memcached / redis - sessions are stored in one of these fast, cache based stores.
+array - sessions are stored in a PHP array and will not be persisted.
+
+Database
+Schema::create('sessions', function ($table) {
+    $table->string('id')->unique();
+    $table->foreignId('user_id')->nullable();
+    $table->string('ip_address', 45)->nullable();
+    $table->text('user_agent')->nullable();
+    $table->text('payload');
+    $table->integer('last_activity');
+});
+
+Redis
+Before using Redis sessions with Laravel, you will need to either install the PhpRedis PHP extension via PECL or install the predis/predis package (~1.0) via Composer.
+
+Retrieving Data
+$value = $request->session()->get('key');
+$value = $request->session()->get('key', 'default');
+$value = $request->session()->get('key', function () {
+    return 'default';
+});
+The Global Session Helper
+ $value = session('key');
+ $value = session('key', 'default');
+ session(['key' => 'value']);
+Retrieving All Session Data
+$data = $request->session()->all();
+Determining If An Item Exists In The Session
+if ($request->session()->has('users')) {
+    //
+}
+Storing Data
+$request->session()->put('key', 'value');
+session(['key' => 'value']);
+Pushing To Array Session Values
+$request->session()->push('user.teams', 'developers');
+Retrieving & Deleting An Item
+$value = $request->session()->pull('key', 'default')
+Flash Data
+$request->session()->flash('status', 'Task was successful!');
+Deleting Data
+$request->session()->forget('key');
+$request->session()->forget(['key1', 'key2']);
+$request->session()->flush();
+Regenerating The Session ID
+$request->session()->regenerate();
+Session Blocking
+Route::post('/profile', function () {
+})->block($lockSeconds = 10, $waitSeconds = 10)
+Route::post('/order', function () {
+})->block($lockSeconds = 10, $waitSeconds = 10)
+Implementing The Driver
+class MongoSessionHandler implements \SessionHandlerInterface
+{
+    public function open($savePath, $sessionName) {}
+    public function close() {}
+    public function read($sessionId) {}
+    public function write($sessionId, $data) {}
+    public function destroy($sessionId) {}
+    public function gc($lifetime) {}
+}
+Registering The Driver
+ Session::extend('mongo', function ($app) {
+            // Return implementation of SessionHandlerInterface...
+            return new MongoSessionHandler;
+        });
