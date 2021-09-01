@@ -625,3 +625,48 @@ Validator::make($request->all(), [
     'title' => 'required|unique:posts|max:255',
     'body' => 'required',
 ])->validateWithBag('post');
+
+Error Handling
+Introduction
+Configuration
+The Exception Handler
+-Report Method
+-Render Method
+-Reportable & Renderable Exceptions
+HTTP Exceptions
+-Custom HTTP Error Pages
+
+Introduction
+The App\Exceptions\Handler class is where all exceptions triggered by your application are logged and then rendered back to the user.
+
+Configuration
+If you set the APP_DEBUG environment variable to true, you can enable debug option.
+
+The Exception Handler
+-The Report Method
+  if ($exception instanceof CustomException) {
+        //
+    }
+    parent::report($exception);
+ 1.Global Log Context
+ 2.The report Helper
+ 3.Ignoring Exceptions By Type
+-The Render Method
+public function render($request, Throwable $exception)
+{
+    if ($exception instanceof CustomException) {
+        return response()->view('errors.custom', [], 500);
+    }
+
+    return parent::render($request, $exception);
+}
+-Reportable & Renderable Exceptions
+HTTP Exceptions
+In order to generate such a response from anywhere in your application, you may use the abort helper:
+abort(403, 'Unauthorized action.');
+-Custom HTTP Error Pages
+If you wish to customize the error page for 404 HTTP status codes, create a resources/views/errors/404.blade.php. 
+<h2>{{ $exception->getMessage() }}</h2>
+You may publish Laravel's error page templates using the vendor:publish Artisan command. Once the templates have been published, you may customize them to your liking:
+
+php artisan vendor:publish --tag=laravel-errors
