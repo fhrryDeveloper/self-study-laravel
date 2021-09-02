@@ -670,3 +670,78 @@ If you wish to customize the error page for 404 HTTP status codes, create a reso
 You may publish Laravel's error page templates using the vendor:publish Artisan command. Once the templates have been published, you may customize them to your liking:
 
 php artisan vendor:publish --tag=laravel-errors
+
+9/2
+Logging
+Introduction
+Configuration
+-Building Log Stacks
+Writing Log Messages
+-Writing To Specific Channels
+Advanced Monolog Channel Customization
+-Customizing Monolog For Channels
+-Creating Monolog Handler Channels
+-Creating Channels Via Factories
+
+Introduction
+To help you learn more about what's happening within your application, Laravel provides robust logging services that allow you to log messages to files, the system error log, and even to Slack to notify your entire team.
+Monolog library
+
+Configuration
+All of the configuration for your application's logging system is housed in the config/logging.php configuration file. 
+
+Configuring The Channel Name
+'stack' => [
+    'driver' => 'stack',
+    'name' => 'channel-name',
+    'channels' => ['single', 'slack'],
+],
+
+Writing Log Messages
+Log::emergency($message);
+Log::alert($message);
+Log::critical($message);
+Log::error($message);
+Log::warning($message);
+Log::notice($message);
+Log::info($message);
+Log::debug($message);
+Creating Monolog Handler Channels
+'logentries' => [
+    'driver'  => 'monolog',
+    'handler' => Monolog\Handler\SyslogUdpHandler::class,
+    'with' => [
+        'host' => 'my.logentries.internal.datahubhost.company.com',
+        'port' => '10000',
+    ],
+],
+Monolog Formatters
+'browser' => [
+    'driver' => 'monolog',
+    'handler' => Monolog\Handler\BrowserConsoleHandler::class,
+    'formatter' => Monolog\Formatter\HtmlFormatter::class,
+    'formatter_with' => [
+        'dateFormat' => 'Y-m-d',
+    ],
+],
+'newrelic' => [
+    'driver' => 'monolog',
+    'handler' => Monolog\Handler\NewRelicHandler::class,
+    'formatter' => 'default',
+],
+Creating Channels Via Factories
+'channels' => [
+    'custom' => [
+        'driver' => 'custom',
+        'via' => App\Logging\CreateCustomLogger::class,
+    ],
+],
+Once you have configured the custom channel, you're ready to define the class that will create your Monolog instance. This class only needs a single method: __invoke, which should return the Monolog instance:
+class CreateCustomLogger
+{
+    public function __invoke(array $config)
+    {
+        return new Logger(...);
+    }
+}
+
