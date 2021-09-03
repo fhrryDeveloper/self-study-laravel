@@ -744,4 +744,37 @@ class CreateCustomLogger
         return new Logger(...);
     }
 }
+9/3, 9/4
+Blade Templates
 
+Introduction
+Template Inheritance
+-Defining A Layout
+-Extending A Layout
+Displaying Data
+-Blade & JavaScript Frameworks
+Control Structures
+-If Statements
+-Switch Statements
+-Loops
+-The Loop Variable
+-Comments
+-PHP
+-The @once Directive
+Forms
+-CSRF Field
+-Method Field
+-Validation Errors
+Components
+-Displaying Components
+-Passing Data To Components
+-Managing Attributes
+-Slots
+-Inline Component Views
+-Anonymous Components
+Including Subviews
+-Rendering Views For Collections
+Stacks
+Service Injection
+Extending Blade
+-Custom If Statements
