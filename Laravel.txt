@@ -779,4 +779,86 @@ Service Injection
 Extending Blade
 -Custom If Statements
 
-9/6
+9/6, 9/7
+Localization
+
+Introduction
+-Configuring The Locale
+Defining Translation Strings
+-Using Short Keys
+-Using Translation Strings As Keys
+Retrieving Translation Strings
+-Replacing Parameters In Translation Strings
+-Pluralization
+Overriding Package Language Files
+
+Introduction
+Laravel's localization features provide a convenient way to retrieve strings in various languages, allowing you to easily support multiple languages within your application. Language strings are stored in files within the resources/lang directory. Within this directory there should be a subdirectory for each language supported by the application
+example:
+/resources
+    /lang
+        /en
+            messages.php
+        /es
+            messages.php
+All language files return an array of keyed strings. 
+return [
+    'welcome' => 'Welcome to our application',
+];
+Configuring The Locale(config/app.php)
+Route::get('welcome/{locale}', function ($locale) {
+    if (! in_array($locale, ['en', 'es', 'fr'])) {
+        abort(400);
+    }
+    App::setLocale($locale);
+});
+You may configure a "fallback language", which will be used when the active language does not contain a given translation string. 
+'fallback_locale' => 'en',
+Determining The Current Locale
+You may use the getLocale and isLocale methods on the App facade to determine the current locale or check if the locale is a given value:
+
+$locale = App::getLocale();
+
+if (App::isLocale('en')) {
+    //
+}
+Defining Translation Strings
+-Using Short Keys
+Typically, translation strings are stored in files within the resources/lang directory.
+/resources
+    /lang
+        /en
+            messages.php
+        /es
+            messages.php
+return [
+    'welcome' => 'Welcome to our application',
+];
+Using Translation Strings As Keys
+Translation files that use translation strings as keys are stored as JSON files in the resources/lang directory. For example, if your application has a Spanish translation, you should create a resources/lang/es.json file:
+{
+    "I love programming.": "Me encanta programar."
+}
+Retrieving Translation Strings
+You may retrieve lines from language files using the __ helper function.
+echo __('messages.welcome');
+echo __('I love programming.');
+If you are using the Blade templating engine, you may use the {{ }} syntax to echo the translation string or use the @lang directive:
+{{ __('messages.welcome') }}
+@lang('messages.welcome')
+Replacing Parameters In Translation Strings
+'welcome' => 'Welcome, :name',
+echo __('messages.welcome', ['name' => 'dayle']);
+'welcome' => 'Welcome, :NAME', // Welcome, DAYLE
+'goodbye' => 'Goodbye, :Name', // Goodbye, Dayle
+Pluralization
+Pluralization is a complex problem, as different languages have a variety of complex rules for pluralization.
+'apples' => 'There is one apple|There are many apples',
+'apples' => '{0} There are none|[1,19] There are some|[20,*] There are many',
+echo trans_choice('messages.apples', 10);
+'minutes_ago' => '{1} :value minute ago|[2,*] :value minutes ago',
+echo trans_choice('time.minutes_ago', 5, ['value' => 5]);
+'apples' => '{0} There are none|{1} There is one|[2,*] There are :count',
+
+Overriding Package Language Files
+Some packages may ship with their own language files. Instead of changing the package's core files to tweak these lines, you may override them by placing files in the resources/lang/vendor/{package}/{locale} directory.
