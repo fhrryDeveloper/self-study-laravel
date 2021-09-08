@@ -862,3 +862,72 @@ echo trans_choice('time.minutes_ago', 5, ['value' => 5]);
 
 Overriding Package Language Files
 Some packages may ship with their own language files. Instead of changing the package's core files to tweak these lines, you may override them by placing files in the resources/lang/vendor/{package}/{locale} directory.
+
+9/8
+JavaScript & CSS Scaffolding
+
+Introduction
+Writing CSS
+Writing JavaScript
+-Writing Vue Components
+-Using React
+Adding Presets
+
+The Bootstrap and Vue scaffolding provided by Laravel is located in the laravel/ui Composer package, which may be installed using Composer:
+composer require laravel/ui:^2.4
+
+Once the laravel/ui package has been installed, you may install the frontend scaffolding using the ui Artisan command:
+
+// Generate basic scaffolding...
+php artisan ui bootstrap
+php artisan ui vue
+php artisan ui react
+
+// Generate login / registration scaffolding...
+php artisan ui bootstrap --auth
+php artisan ui vue --auth
+php artisan ui react --auth
+Laravel does include some basic scaffolding to make it easier to get started writing modern JavaScript using the Vue library.
+Before compiling your CSS, install your project's frontend dependencies using the Node package manager (NPM):
+npm install
+Writing CSS
+Once the dependencies have been installed using npm install, you can compile your SASS files to plain CSS using Laravel Mix. The npm run dev command will process the instructions in your webpack.mix.js file. Typically, your compiled CSS will be placed in the public/css directory:
+npm run dev
+Writing JavaScript
+npm install
+Once the packages are installed, you can use the npm run dev command to compile your assets. Webpack is a module bundler for modern JavaScript applications. When you run the npm run dev command, Webpack will execute the instructions in your webpack.mix.js file:
+npm run dev
+Writing Vue Components
+When using the laravel/ui package to scaffold your frontend, an ExampleComponent.vue Vue component will be placed in the resources/js/components directory. 
+Vue.component(
+    'example-component',
+    require('./components/ExampleComponent.vue').default
+);
+@extends('layouts.app')
+
+@section('content')
+    <example-component></example-component>
+@endsection
+Using React
+If you prefer to use React to build your JavaScript application, Laravel makes it a cinch to swap the Vue scaffolding with React scaffolding:
+
+composer require laravel/ui
+
+// Generate basic scaffolding...
+php artisan ui react
+
+// Generate login / registration scaffolding...
+php artisan ui react --auth
+Adding Presets
+Typically, you should declare preset macros in a service provider:
+
+use Laravel\Ui\UiCommand;
+
+UiCommand::macro('nextjs', function (UiCommand $command) {
+    // Scaffold your frontend...
+});
+Then, you may call the new preset via the ui command:
+
+php artisan ui nextjs
+
+9/9
