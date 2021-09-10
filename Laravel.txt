@@ -930,4 +930,5 @@ Then, you may call the new preset via the ui command:
 
 php artisan ui nextjs
 
-9/9
+9/10
+
