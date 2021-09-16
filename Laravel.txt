@@ -1244,9 +1244,156 @@ interface UserProvider
     public function retrieveByCredentials(array $credentials);
     public function validateCredentials(Authenticatable $user, array $credentials);
 }
+
+Event
 protected $listen = [
     'Illuminate\Auth\Events\Registered' => [
         'App\Listeners\LogRegisteredUser',
     ],
 ]
+
+9/16
+Authorization
+
+Introduction
+Gates
+-Writing Gates
+-Authorizing Actions
+-Gate Responses
+-Intercepting Gate Checks
+Creating Policies
+-Generating Policies
+-Registering Policies
+Writing Policies
+-Policy Methods
+-Policy Responses
+-Methods Without Models
+-Guest Users
+-Policy Filters
+Authorizing Actions Using Policies
+-Via The User Model
+-Via Middleware
+-Via Controller Helpers
+-Via Blade Templates
+-Supplying Additional Context
+
+Introduction
+In addition to providing authentication services out of the box, Laravel also provides a simple way to authorize user actions against a given resource.
+
+Writing Gates
+public function boot()
+{
+    $this->registerPolicies();
+
+    Gate::define('edit-settings', function ($user) {
+        return $user->isAdmin;
+    });
+
+    Gate::define('update-post', function ($user, $post) {
+        return $user->id === $post->user_id;
+    });
+}
+
+public function boot()
+{
+    $this->registerPolicies();
+
+    Gate::define('update-post', 'App\Policies\PostPolicy@update');
+}
+Authorizing Actions
+To authorize an action using gates, you should use the allows or denies methods.
+if (Gate::allows('edit-settings')) {
+    // The current user can edit settings
+}
+
+if (Gate::allows('update-post', $post)) {
+    // The current user can update the post...
+}
+
+if (Gate::denies('update-post', $post)) {
+    // The current user can't update the post...
+}
+If you would like to determine if a particular user is authorized to perform an action, you may use the forUser method on the Gate facade:
+if (Gate::forUser($user)->allows('update-post', $post)) {
+}
+if (Gate::forUser($user)->denies('update-post', $post)) {
+}
+You may authorize multiple actions at a time with the any or none methods:
+if (Gate::any(['update-post', 'delete-post'], $post)) {
+}
+if (Gate::none(['update-post', 'delete-post'], $post)) {
+}
+Authorizing Or Throwing Exceptions
+Gate::authorize('update-post', $post);
+Supplying Additional Context
+Gate::define('create-post', function ($user, $category, $extraFlag) {
+    return $category->group > 3 && $extraFlag === true;
+});
+
+if (Gate::check('create-post', [$category, $extraFlag])) {
+    // The user can create the post...
+}
+
+Gate Responses
+use Illuminate\Auth\Access\Response;
+use Illuminate\Support\Facades\Gate;
+
+Gate::define('edit-settings', function ($user) {
+    return $user->isAdmin
+                ? Response::allow()
+                : Response::deny('You must be a super administrator.');
+});
+$response = Gate::inspect('edit-settings', $post);
+
+if ($response->allowed()) {
+    // The action is authorized...
+} else {
+    echo $response->message();
+}
+Gate::authorize('edit-settings', $post);
+Intercepting Gate Checks
+Gate::before(function ($user, $ability) {
+    if ($user->isSuperAdmin()) {
+        return true;
+    }
+});
+Gate::after(function ($user, $ability, $result, $arguments) {
+    if ($user->isSuperAdmin()) {
+        return true;
+    }
+});
+
+Creating Policies
+Generating Policies
+php artisan make:policy PostPolicy
+php artisan make:policy PostPolicy --model=Post
+Registering Policies
+ public function boot()
+    {
+        $this->registerPolicies();
+    }
+Writing Policies
+Policy Methods
+class PostPolicy
+{
+    public function update(User $user, Post $post)
+    {
+        return $user->id === $post->user_id;
+    }
+}
+Policy Responses
+public function update(User $user, Post $post)
+{
+    return $user->id === $post->user_id
+                ? Response::allow()
+                : Response::deny('You do not own this post.');
+}
+$response = Gate::inspect('update', $post);
+
+if ($response->allowed()) {
+    // The action is authorized...
+} else {
+    echo $response->message();
+}
+Gate::authorize('update', $post);
 
