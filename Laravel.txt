@@ -1396,4 +1396,95 @@ if ($response->allowed()) {
     echo $response->message();
 }
 Gate::authorize('update', $post);
+Methods Without Models
+public function create(User $user)
+{
+    //
+}
+Guest Users
+public function update(?User $user, Post $post)
+    {
+        return optional($user)->id === $post->user_id;
+    }
+Policy Filters
+The before method will be executed before any other methods on the policy, giving you an opportunity to authorize the action before the intended policy method is actually called.
+public function before($user, $ability)
+{
+    if ($user->isSuperAdmin()) {
+        return true;
+    }
+}
+
+Authorizing Actions Using Policies
+Via The User Model
+if ($user->can('update', $post)) {
+    //
+}
+use App\Post;
+
+if ($user->can('create', Post::class)) {
+    // Executes the "create" method on the relevant policy...
+}
+Via Middleware
+use App\Post;
+
+Route::put('/post/{post}', function (Post $post) {
+    // The current user may update the post...
+})->middleware('can:update,post');
+Route::post('/post', function () {
+    // The current user may create posts...
+})->middleware('can:create,App\Post');
+public function update(Request $request, Post $post)
+    {
+        $this->authorize('update', $post);
+    }
+public function __construct()
+    {
+        $this->authorizeResource(Post::class, 'post');
+    }
+@can('update', $post)
+    <!-- The Current User Can Update The Post -->
+@elsecan('create', App\Post::class)
+    <!-- The Current User Can Create New Post -->
+@endcan
+
+@cannot('update', $post)
+    <!-- The Current User Cannot Update The Post -->
+@elsecannot('create', App\Post::class)
+    <!-- The Current User Cannot Create A New Post -->
+@endcannot
+These directives are convenient shortcuts for writing @if and @unless statements. The @can and @cannot statements above respectively translate to the following statements:
+
+@if (Auth::user()->can('update', $post))
+    <!-- The Current User Can Update The Post -->
+@endif
+
+@unless (Auth::user()->can('update', $post))
+    <!-- The Current User Cannot Update The Post -->
+@endunless
+To accomplish this, use the @canany directive:
+
+@canany(['update', 'view', 'delete'], $post)
+    // The current user can update, view, or delete the post
+@elsecanany(['create'], \App\Post::class)
+    // The current user can create a post
+@endcanany
+@can('create', App\Post::class)
+    <!-- The Current User Can Create Posts -->
+@endcan
+
+@cannot('create', App\Post::class)
+    <!-- The Current User Can't Create Posts -->
+@endcannot
+Supplying Additional Context
+public function update(User $user, Post $post, int $category)
+{
+    return $user->id === $post->user_id &&
+           $category > 3;
+}
+public function update(Request $request, Post $post)
+{
+    $this->authorize('update', [$post, $request->input('category')]);
+    // The current user can update the blog post...
+}
 
