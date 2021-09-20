@@ -1488,3 +1488,60 @@ public function update(Request $request, Post $post)
     // The current user can update the blog post...
 }
 
+9/20
+Email Verification
+Introduction
+Model Preparation
+Database Considerations
+Routing
+-Protecting Routes
+Views
+After Verifying Emails
+Events
+
+Introduction
+Rather than forcing you to re-implement this on each application, Laravel provides convenient methods for sending and verifying email verification requests.
+
+Model Preparation
+To get started, verify that your App\User model implements the Illuminate\Contracts\Auth\MustVerifyEmail contract:
+<?php
+
+namespace App;
+
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+
+class User extends Authenticatable implements MustVerifyEmail
+{
+    use Notifiable;
+}
+
+Database Considerations
+The Email Verification Column
+php artisan migrate
+
+Routing
+Auth::routes(['verify' => true]);
+
+Protecting Routes
+Route::get('profile', function () {
+    // Only verified users may enter...
+})->middleware('verified');
+
+Views
+composer require laravel/ui
+
+php artisan ui vue --auth
+
+After Verifying Emails
+protected $redirectTo = '/dashboard';
+
+Events
+Laravel dispatches events during the email verification process. You may attach listeners to these events in your EventServiceProvider:
+protected $listen = [
+    'Illuminate\Auth\Events\Verified' => [
+        'App\Listeners\LogVerifiedUser',
+    ],
+];
+
