@@ -1545,3 +1545,133 @@ protected $listen = [
     ],
 ];
 
+9/21
+Encryption
+
+Introduction
+Configuration
+Using The Encrypter
+
+Introduction
+Laravel's encrypter uses OpenSSL to provide AES-256 and AES-128 encryption.
+
+Configuration
+Before using Laravel's encrypter, you must set a key option in your config/app.php configuration file.
+php artisan key:generate
+
+Using The Encrypter
+-Encrypting A Value
+ You may encrypt a value using the encryptString method of the Crypt facade. All encrypted values are encrypted using OpenSSL and the AES-256-CBC cipher.
+ public function storeSecret(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $user->fill([
+            'secret' => Crypt::encryptString($request->secret),
+        ])->save();
+    }
+Decrypting A Value
+You may decrypt values using the decryptString method of the Crypt facade. 
+try {
+    $decrypted = Crypt::decryptString($encryptedValue);
+} catch (DecryptException $e) {
+    //
+}
+
+Hashing
+
+Introduction
+Configuration
+Basic Usage
+
+Introduction
+The Laravel Hash facade provides secure Bcrypt and Argon2 hashing for storing user passwords.
+
+Configuration
+The default hashing driver for your application is configured in the config/hashing.php configuration file. 
+
+Basic Usage
+You may hash a password by calling the make method on the Hash facade:
+
+public function update(Request $request)
+    {
+        $request->user()->fill([
+            'password' => Hash::make($request->newPassword)
+        ])->save();
+    }
+
+Adjusting The Bcrypt Work Factor
+$hashed = Hash::make('password', [
+    'rounds' => 12,
+]);
+Adjusting The Argon2 Work Factor
+$hashed = Hash::make('password', [
+    'memory' => 1024,
+    'time' => 2,
+    'threads' => 2,
+]);
+Verifying A Password Against A Hash
+The check method allows you to verify that a given plain-text string corresponds to a given hash.
+if (Hash::check('plain-text', $hashedPassword)) {
+    // The passwords match...
+}
+Checking If A Password Needs To Be Rehashed
+The needsRehash function allows you to determine if the work factor used by the hasher has changed since the password was hashed:
+
+if (Hash::needsRehash($hashed)) {
+    $hashed = Hash::make('plain-text');
+}
+
+Resetting Passwords
+
+Introduction
+Database Considerations
+Routing
+Views
+After Resetting Passwords
+Customization
+
+Introduction
+Rather than forcing you to re-implement this on each application, Laravel provides convenient methods for sending password reminders and performing password resets.
+
+Database Considerations
+Generating The Reset Token Table Migration
+The migration for this table is included in the laravel/ui Composer package.
+composer require laravel/ui
+php artisan migrate
+
+Routing
+Laravel includes Auth\ForgotPasswordController and Auth\ResetPasswordController classes that contains the logic necessary to e-mail password reset links and reset user passwords. 
+php artisan ui vue --auth
+
+Views
+To generate all of the necessary view for resetting passwords, you may use the laravel/ui Composer package:
+composer require laravel/ui
+php artisan ui vue --auth
+
+After Resetting Passwords
+Once you have defined the routes and views to reset your user's passwords, you may access the route in your browser at /password/reset. The ForgotPasswordController included with the framework already includes the logic to send the password reset link e-mails, while the ResetPasswordController includes the logic to reset user passwords.
+
+After a password is reset, the user will automatically be logged into the application and redirected to /home. You can customize the post password reset redirect location by defining a redirectTo property on the ResetPasswordController:
+
+protected $redirectTo = '/dashboard';
+
+Customization
+You can customize the included ResetPasswordController to use the guard of your choice by overriding the guard method on the controller. 
+protected function guard()
+{
+    return Auth::guard('guard-name');
+}
+Password Broker Customization
+In your auth.php configuration file, you may configure multiple password "brokers", which may be used to reset passwords on multiple user tables. You can customize the included ForgotPasswordController and ResetPasswordController to use the broker of your choice by overriding the broker method:
+public function broker()
+{
+    return Password::broker('name');
+}
+Reset Email Customization
+You may easily modify the notification class used to send the password reset link to the user. 
+public function sendPasswordResetNotification($token)
+{
+    $this->notify(new ResetPasswordNotification($token));
+}
+
