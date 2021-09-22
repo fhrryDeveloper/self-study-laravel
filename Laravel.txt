@@ -1675,3 +1675,217 @@ public function sendPasswordResetNotification($token)
     $this->notify(new ResetPasswordNotification($token));
 }
 
+9/22
+Artisan Console
+
+Introduction
+-Tinker (REPL)
+Writing Commands
+-Generating Commands
+-Command Structure
+-Closure Commands
+Defining Input Expectations
+-Arguments
+-Options
+-Input Arrays
+-Input Descriptions
+Command I/O
+-Retrieving Input
+-Prompting For Input
+-Writing Output
+Registering Commands
+Programmatically Executing Commands
+-Calling Commands From Other Commands
+Stub Customization
+
+Introduction
+Artisan is the command-line interface included with Laravel. 
+php artisan list
+php artisan help migrate
+
+Tinker (REPL)
+Laravel Tinker is a powerful REPL for the Laravel framework, powered by the PsySH package.
+composer require laravel/tinker
+php artisan tinker
+php artisan vendor:publish --provider="Laravel\Tinker\TinkerServiceProvider"
+Command Whitelist
+Tinker utilizes a white-list to determine which Artisan commands are allowed to be run within its shell.
+Classes That Should Not Be Aliased
+'dont_alias' => [
+    App\User::class,
+],
+
+Writing Commands
+In addition to the commands provided with Artisan, you may also build your own custom commands. 
+Generating Commands
+php artisan make:command SendEmails
+Command Structure
+Let's take a look at an example command. 
+class SendEmails extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'email:send {user}';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Send drip e-mails to a user';
+
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @param  \App\DripEmailer  $drip
+     * @return mixed
+     */
+    public function handle(DripEmailer $drip)
+    {
+        $drip->send(User::find($this->argument('user')));
+    }
+}
+Closure Commands
+Closure based commands provide an alternative to defining console commands as classes.
+protected function commands()
+{
+    require base_path('routes/console.php');
+}
+Artisan::command('build {project}', function ($project) {
+    $this->info("Building {$project}!");
+});
+Type-Hinting Dependencies
+Artisan::command('email:send {user}', function (DripEmailer $drip, $user) {
+    $drip->send(User::find($user));
+});
+Closure Command Descriptions
+This description will be displayed when you run the php artisan list or php artisan help commands:
+Artisan::command('build {project}', function ($project) {
+    $this->info("Building {$project}!");
+})->describe('Build the project');
+
+Defining Input Expectations
+Arguments
+All user supplied arguments and options are wrapped in curly braces.
+protected $signature = 'email:send {user}';
+You may also make arguments optional and define default values for arguments:
+email:send {user?}
+email:send {user=foo}
+Options
+protected $signature = 'email:send {user} {--queue}';
+php artisan email:send 1 --queue
+Options With Values
+protected $signature = 'email:send {user} {--queue=}';
+In this example, the user may pass a value for the option like so:
+php artisan email:send 1 --queue=default
+email:send {user} {--queue=default}
+Option Shortcuts
+email:send {user} {--Q|queue}
+Input Arrays
+email:send {user*}
+php artisan email:send foo bar
+email:send {user} {--id=*}
+php artisan email:send --id=1 --id=2'
+
+Input Descriptions
+protected $signature = 'email:send
+                        {user : The ID of the user}
+                        {--queue= : Whether the job should be queued}';
+
+Command I/O
+Retrieving Input
+public function handle()
+{
+    $userId = $this->argument('user');
+}
+If you need to retrieve all of the arguments as an array, call the arguments method:
+
+$arguments = $this->arguments();
+$queueName = $this->option('queue');
+$options = $this->options();
+
+Prompting For Input
+public function handle()
+{
+    $name = $this->ask('What is your name?');
+}
+$password = $this->secret('What is the password?');
+Asking For Confirmation
+if ($this->confirm('Do you wish to continue?')) {
+}
+Auto-Completion
+$name = $this->anticipate('What is your name?', ['Taylor', 'Dayle']);
+$name = $this->anticipate('What is your name?', function ($input) {
+    // Return auto-completion options...
+});
+Multiple Choice Questions
+$name = $this->choice('What is your name?', ['Taylor', 'Dayle'], $defaultIndex);
+$name = $this->choice(
+    'What is your name?',
+    ['Taylor', 'Dayle'],
+    $defaultIndex,
+    $maxAttempts = null,
+    $allowMultipleSelections = false
+);
+Writing Output
+public function handle()
+{
+    $this->info('Display this on the screen');
+}
+To display an error message, use the error method. Error message text is typically displayed in red:
+
+$this->error('Something went wrong!');
+$this->line('Display this on the screen');
+Table Layouts
+$headers = ['Name', 'Email'];
+$users = App\User::all(['name', 'email'])->toArray();
+$this->table($headers, $users);
+Progress Bars
+$users = App\User::all();
+
+$bar = $this->output->createProgressBar(count($users));
+
+$bar->start();
+
+foreach ($users as $user) {
+    $this->performTask($user);
+
+    $bar->advance();
+}
+
+$bar->finish();
+Registering Commands
+protected function commands()
+{
+    $this->load(__DIR__.'/Commands');
+    $this->load(__DIR__.'/MoreCommands');
+}
+protected $commands = [
+    Commands\SendEmails::class
+];
+Artisan::queue('email:send', [
+    'user' => 1, '--queue' => 'default'
+])->onConnection('redis')->onQueue('commands');
+Calling Commands From Other Commands
+$this->call('email:send', [
+        'user' => 1, '--queue' => 'default'
+    ]);
+$this->callSilent('email:send', [
+    'user' => 1, '--queue' => 'default'
+]);
+To accomplish this, you may use the stub:publish command to publish the most common stubs for customization:
+php artisan stub:publish
+
