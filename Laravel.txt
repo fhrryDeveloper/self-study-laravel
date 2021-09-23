@@ -1889,3 +1889,34 @@ $this->callSilent('email:send', [
 To accomplish this, you may use the stub:publish command to publish the most common stubs for customization:
 php artisan stub:publish
 
+9/23
+Broadcasting
+
+Introduction
+-Configuration
+-Driver Prerequisites
+Concept Overview
+-Using An Example Application
+Defining Broadcast Events
+-Broadcast Name
+-Broadcast Data
+-Broadcast Queue
+-Broadcast Conditions
+Authorizing Channels
+-Defining Authorization Routes
+-Defining Authorization Callbacks
+-Defining Channel Classes
+Broadcasting Events
+-Only To Others
+Receiving Broadcasts
+-Installing Laravel Echo
+-Listening For Events
+-Leaving A Channel
+-Namespaces
+Presence Channels
+-Authorizing Presence Channels
+-Joining Presence Channels
+-Broadcasting To Presence Channels
+Client Events
+Notifications
+
