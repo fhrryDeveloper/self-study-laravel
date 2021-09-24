@@ -1889,7 +1889,7 @@ $this->callSilent('email:send', [
 To accomplish this, you may use the stub:publish command to publish the most common stubs for customization:
 php artisan stub:publish
 
-9/23
+9/23, 9/24
 Broadcasting
 
 Introduction
@@ -1919,4 +1919,251 @@ Presence Channels
 -Broadcasting To Presence Channels
 Client Events
 Notifications
+
+Introduction
+To assist you in building these types of applications, Laravel makes it easy to "broadcast" your events over a WebSocket connection.
+
+Configuration
+All of your application's event broadcasting configuration is stored in the config/broadcasting.php configuration file. 
+Broadcast Service Provider
+Before broadcasting any events, you will first need to register the App\Providers\BroadcastServiceProvider.
+CSRF Token
+Laravel Echo will need access to the current session's CSRF token. 
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+Driver Prerequisites
+Pusher Channels
+If you are broadcasting your events over Pusher Channels, you should install the Pusher Channels PHP SDK using the Composer package manager:
+composer require pusher/pusher-php-server "~4.0"
+
+Next, you should configure your Channels credentials in the config/broadcasting.php configuration file.
+'options' => [
+    'cluster' => 'eu',
+    'useTLS' => true
+],
+Socket.io
+npm install --save socket.io-client
+Next, you will need to instantiate Echo with the socket.io connector and a host.
+
+import Echo from "laravel-echo"
+
+window.io = require('socket.io-client');
+
+window.Echo = new Echo({
+    broadcaster: 'socket.io',
+    host: window.location.hostname + ':6001'
+});
+
+Using An Example Application
+event(new ShippingStatusUpdated($update));
+public function broadcastOn()
+{
+    return new PrivateChannel('order.'.$this->update->order_id);
+}
+Authorizing Channels
+Broadcast::channel('order.{orderId}', function ($user, $orderId) {
+    return $user->id === Order::findOrNew($orderId)->user_id;
+});
+Listening For Event Broadcasts
+Echo.private(`order.${orderId}`)
+    .listen('ShippingStatusUpdated', (e) => {
+        console.log(e.update);
+    });
+Defining Broadcast Events
+class ServerCreated implements ShouldBroadcast
+{
+    use SerializesModels;
+
+    public $user;
+
+    /**
+     * Create a new event instance.
+     *
+     * @return void
+     */
+    public function __construct(User $user)
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * Get the channels the event should broadcast on.
+     *
+     * @return Channel|array
+     */
+    public function broadcastOn()
+    {
+        return new PrivateChannel('user.'.$this->user->id);
+    }
+}
+Broadcast Name
+public function broadcastAs()
+{
+    return 'server.created';
+}
+.listen('.server.created', function (e) {
+    ....
+});
+Broadcast Data
+{
+    "user": {
+        "id": 1,
+        "name": "Patrick Stewart"
+        ...
+    }
+}
+Broadcast Queue
+public $broadcastQueue = 'your-queue-name';
+<?php
+
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+
+class ShippingStatusUpdated implements ShouldBroadcastNow
+{
+    //
+}
+Broadcast Conditions
+public function broadcastWhen()
+{
+    return $this->value > 100;
+}
+Authorizing Channels
+Defining Authorization Routes
+Broadcast::routes();
+Broadcast::routes($attributes);
+Customizing The Authorization Endpoint
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: 'your-pusher-channels-key',
+    authEndpoint: '/custom/endpoint/auth'
+});
+
+Defining Authorization Callbacks
+Broadcast::channel('order.{orderId}', function ($user, $orderId) {
+    return $user->id === Order::findOrNew($orderId)->user_id;
+});
+Authorization Callback Model Binding
+use App\Order;
+
+Broadcast::channel('order.{order}', function ($user, Order $order) {
+    return $user->id === $order->user_id;
+});
+Authorization Callback Authentication
+Broadcast::channel('channel', function () {
+    // ...
+}, ['guards' => ['web', 'admin']]);
+Defining Channel Classes
+php artisan make:channel OrderChannel
+Next, register your channel in your routes/channels.php file:
+use App\Broadcasting\OrderChannel;
+Broadcast::channel('order.{order}', OrderChannel::class);
+
+ public function join(User $user, Order $order)
+    {
+        return $user->id === $order->user_id;
+    }
+
+Broadcasting Events
+event(new ShippingStatusUpdated($update));
+Only To Others
+broadcast(new ShippingStatusUpdated($update));
+broadcast(new ShippingStatusUpdated($update))->toOthers();
+axios.post('/task', task)
+    .then((response) => {
+        this.tasks.push(response.data);
+    });
+Configuration
+var socketId = Echo.socketId();
+Receiving Broadcasts
+npm install --save laravel-echo pusher-js
+import Echo from "laravel-echo"
+
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: 'your-pusher-channels-key'
+});
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: 'your-pusher-channels-key',
+    cluster: 'eu',
+    forceTLS: true
+});
+const client = require('pusher-js');
+
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: 'your-pusher-channels-key',
+    client: client
+});
+Listening For Events
+Echo.channel('orders')
+    .listen('OrderShipped', (e) => {
+        console.log(e.order.name);
+    });
+Leaving A Channel
+Echo.leaveChannel('orders');
+Echo.leave('orders');
+Namespaces
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: 'your-pusher-channels-key',
+    namespace: 'App.Other.Namespace'
+});
+Echo.channel('orders')
+    .listen('.Namespace\\Event\\Class', (e) => {
+        //
+    });
+Broadcast::channel('chat.{roomId}', function ($user, $roomId) {
+    if ($user->canJoinRoom($roomId)) {
+        return ['id' => $user->id, 'name' => $user->name];
+    }
+});
+Joining Presence Channels
+Echo.join(`chat.${roomId}`)
+    .here((users) => {
+        //
+    })
+    .joining((user) => {
+        console.log(user.name);
+    })
+    .leaving((user) => {
+        console.log(user.name);
+    });
+Broadcasting To Presence Channels
+public function broadcastOn()
+{
+    return new PresenceChannel('room.'.$this->message->room_id);
+}
+broadcast(new NewMessage($message));
+
+broadcast(new NewMessage($message))->toOthers();
+Echo.join(`chat.${roomId}`)
+    .here(...)
+    .joining(...)
+    .leaving(...)
+    .listen('NewMessage', (e) => {
+        //
+    });
+
+Client Events
+To broadcast client events, you may use Echo's whisper method:
+
+Echo.private('chat')
+    .whisper('typing', {
+        name: this.user.name
+    });
+To listen for client events, you may use the listenForWhisper method:
+
+Echo.private('chat')
+    .listenForWhisper('typing', (e) => {
+        console.log(e.name);
+    });
+
+Notifications
+Echo.private(`App.User.${userId}`)
+    .notification((notification) => {
+        console.log(notification.type);
+    });
+A channel authorization callback for the App.User.{id} channel is included in the default BroadcastServiceProvider that ships with the Laravel framework.
+
 
