@@ -2166,4 +2166,201 @@ Echo.private(`App.User.${userId}`)
     });
 A channel authorization callback for the App.User.{id} channel is included in the default BroadcastServiceProvider that ships with the Laravel framework.
 
+9/27
+Cache
+
+Configuration
+-Driver Prerequisites
+Cache Usage
+-Obtaining A Cache Instance
+-Retrieving Items From The Cache
+-Storing Items In The Cache
+-Removing Items From The Cache
+-The Cache Helper
+Cache Tags
+-Storing Tagged Cache Items
+-Accessing Tagged Cache Items
+-Removing Tagged Cache Items
+Atomic Locks
+-Driver Prerequisites
+-Managing Locks
+-Managing Locks Across Processes
+Adding Custom Cache Drivers
+-Writing The Driver
+-Registering The Driver
+Events
+
+Configuration
+Laravel provides an expressive, unified API for various caching backends. The cache configuration is located at config/cache.php. 
+
+Driver Prerequisites
+Database
+When using the database cache driver, you will need to setup a table to contain the cache items.
+Schema::create('cache', function ($table) {
+    $table->string('key')->unique();
+    $table->text('value');
+    $table->integer('expiration');
+});
+Memcached
+Using the Memcached driver requires the Memcached PECL package to be installed.
+'memcached' => [
+    [
+        'host' => '127.0.0.1',
+        'port' => 11211,
+        'weight' => 100
+    ],
+],
+Redis
+Before using a Redis cache with Laravel, you will need to either install the PhpRedis PHP extension via PECL or install the predis/predis package (~1.0) via Composer.
+
+Cache Usage
+Obtaining A Cache Instance
+The Illuminate\Contracts\Cache\Factory and Illuminate\Contracts\Cache\Repository contracts provide access to Laravel's cache services. 
+ public function index()
+    {
+        $value = Cache::get('key');
+
+        //
+    }
+Accessing Multiple Cache Stores
+Using the Cache facade, you may access various cache stores via the store method
+$value = Cache::store('file')->get('foo');
+
+Cache::store('redis')->put('bar', 'baz', 600);
+
+Retrieving Items From The Cache
+The get method on the Cache facade is used to retrieve items from the cache.
+$value = Cache::get('key');
+
+$value = Cache::get('key', 'default');
+You may even pass a Closure as the default value. The result of the Closure will be returned if the specified item does not exist in the cache. Passing a Closure allows you to defer the retrieval of default values from a database or other external service:
+
+$value = Cache::get('key', function () {
+    return DB::table(...)->get();
+});
+Checking For Item Existence
+The has method may be used to determine if an item exists in the cache. This method will return false if the value is null:
+if (Cache::has('key')) {
+    //
+}
+Cache::increment('key');
+Cache::increment('key', $amount);
+Cache::decrement('key');
+Cache::decrement('key', $amount);
+$value = Cache::remember('users', $seconds, function () {
+    return DB::table('users')->get();
+});
+$value = Cache::rememberForever('users', function () {
+    return DB::table('users')->get();
+});
+$value = Cache::pull('key');
+Store If Not Present
+Cache::add('key', 'value', $seconds);
+Storing Items Forever
+Cache::forever('key', 'value');
+The Cache Helper
+$value = cache('key');
+cache(['key' => 'value'], $seconds);
+cache(['key' => 'value'], now()->addMinutes(10));
+cache()->remember('users', $seconds, function () {
+    return DB::table('users')->get();
+});
+Removing Tagged Cache Items
+Cache::tags(['people', 'authors'])->flush();
+Cache::tags('authors')->flush();
+Atomic Locks
+Driver Prerequisites
+Schema::create('cache_locks', function ($table) {
+    $table->string('key')->primary();
+    $table->string('owner');
+    $table->integer('expiration');
+});
+Managing Locks
+$lock = Cache::lock('foo', 10);
+
+if ($lock->get()) {
+    // Lock acquired for 10 seconds...
+
+    $lock->release();
+}
+Cache::lock('foo')->get(function () {
+    // Lock acquired indefinitely and automatically released...
+});
+
+$lock = Cache::lock('foo', 10);
+
+try {
+    $lock->block(5);
+
+    // Lock acquired after waiting maximum of 5 seconds...
+} catch (LockTimeoutException $e) {
+    // Unable to acquire lock...
+} finally {
+    optional($lock)->release();
+}
+
+Cache::lock('foo', 10)->block(5, function () {
+    // Lock acquired after waiting maximum of 5 seconds...
+});
+Managing Locks Across Processes
+$podcast = Podcast::find($id);
+
+$lock = Cache::lock('foo', 120);
+
+if ($result = $lock->get()) {
+    ProcessPodcast::dispatch($podcast, $lock->owner());
+}
+
+// Within ProcessPodcast Job...
+Cache::restoreLock('foo', $this->owner)->release();
+If you would like to release a lock without respecting its current owner, you may use the forceRelease method:
+Cache::lock('foo')->forceRelease();
+
+Adding Custom Cache Drivers
+Writing The Driver
+To create our custom cache driver, we first need to implement the Illuminate\Contracts\Cache\Store contract. So, a MongoDB cache implementation would look something like this:
+
+class MongoStore implements Store
+{
+    public function get($key) {}
+    public function many(array $keys) {}
+    public function put($key, $value, $seconds) {}
+    public function putMany(array $values, $seconds) {}
+    public function increment($key, $value = 1) {}
+    public function decrement($key, $value = 1) {}
+    public function forever($key, $value) {}
+    public function forget($key) {}
+    public function flush() {}
+    public function getPrefix() {}
+}
+Cache::extend('mongo', function ($app) {
+    return Cache::repository(new MongoStore);
+});
+Registering The Driver
+ public function boot()
+    {
+        Cache::extend('mongo', function ($app) {
+            return Cache::repository(new MongoStore);
+        });
+    }
+Events
+To execute code on every cache operation, you may listen for the events fired by the cache. Typically, you should place these event listeners within your EventServiceProvider:
+protected $listen = [
+    'Illuminate\Cache\Events\CacheHit' => [
+        'App\Listeners\LogCacheHit',
+    ],
+
+    'Illuminate\Cache\Events\CacheMissed' => [
+        'App\Listeners\LogCacheMissed',
+    ],
+
+    'Illuminate\Cache\Events\KeyForgotten' => [
+        'App\Listeners\LogKeyForgotten',
+    ],
+
+    'Illuminate\Cache\Events\KeyWritten' => [
+        'App\Listeners\LogKeyWritten',
+    ],
+];
+
 
