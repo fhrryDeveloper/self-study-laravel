@@ -2363,4 +2363,18 @@ protected $listen = [
     ],
 ];
 
+9/28
+Collections
+
+Introduction
+-Creating Collections
+-Extending Collections
+Available Methods
+Higher Order Messages
+Lazy Collections
+-Introduction
+-Creating Lazy Collections
+-The Enumerable Contract
+-Lazy Collection Methods
+
 
