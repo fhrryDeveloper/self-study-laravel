@@ -2363,7 +2363,7 @@ protected $listen = [
     ],
 ];
 
-9/28, 9/29
+9/28, 9/29, 9/30
 Collections
 
 Introduction
@@ -2377,4 +2377,219 @@ Lazy Collections
 -The Enumerable Contract
 -Lazy Collection Methods
 
+Introduction
+$collection = collect(['taylor', 'abigail', null])->map(function ($name) {
+    return strtoupper($name);
+})
+->reject(function ($name) {
+    return empty($name);
+});
+As you can see, the Collection class allows you to chain its methods to perform fluent mapping and reducing of the underlying array. In general, collections are immutable, meaning every Collection method returns an entirely new Collection instance.
+
+Creating Collections
+$collection = collect([1, 2, 3]);
+Extending Collections
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+
+Collection::macro('toUpper', function () {
+    return $this->map(function ($value) {
+        return Str::upper($value);
+    });
+});
+$collection = collect(['first', 'second']);
+$upper = $collection->toUpper();
+
+Available Methods
+all
+average
+avg
+chunk
+collapse
+collect
+combine
+concat
+contains
+containsStrict
+count
+countBy
+crossJoin
+dd
+diff
+diffAssoc
+diffKeys
+dump
+duplicates
+duplicatesStrict
+each
+eachSpread
+every
+except
+filter
+first
+firstWhere
+flatMap
+flatten
+flip
+forget
+forPage
+get
+groupBy
+has
+implode
+intersect
+intersectByKeys
+isEmpty
+isNotEmpty
+join
+keyBy
+keys
+last
+macro
+make
+map
+mapInto
+mapSpread
+mapToGroups
+mapWithKeys
+max
+median
+merge
+mergeRecursive
+min
+mode
+nth
+only
+pad
+partition
+pipe
+pluck
+pop
+prepend
+pull
+push
+put
+random
+reduce
+reject
+replace
+replaceRecursive
+reverse
+search
+shift
+shuffle
+skip
+skipUntil
+skipWhile
+slice
+some
+sort
+sortBy
+sortByDesc
+sortDesc
+sortKeys
+sortKeysDesc
+splice
+split
+sum
+take
+takeUntil
+takeWhile
+tap
+times
+toArray
+toJson
+transform
+union
+unique
+uniqueStrict
+unless
+unlessEmpty
+unlessNotEmpty
+unwrap
+values
+when
+whenEmpty
+whenNotEmpty
+where
+whereStrict
+whereBetween
+whereIn
+whereInStrict
+whereInstanceOf
+whereNotBetween
+whereNotIn
+whereNotInStrict
+whereNotNull
+whereNull
+wrap
+zip
+
+Higher Order Messages
+$users = User::where('votes', '>', 500)->get();
+$users->each->markAsVip();
+$users = User::where('group', 'Development')->get();
+return $users->sum->votes;
+$users = User::where('group', 'Development')->get();
+return $users->sum->votes;
+
+Lazy Collections
+Introduction
+use App\LogEntry;
+use Illuminate\Support\LazyCollection;
+
+LazyCollection::make(function () {
+    $handle = fopen('log.txt', 'r');
+
+    while (($line = fgets($handle)) !== false) {
+        yield $line;
+    }
+})->chunk(4)->map(function ($lines) {
+    return LogEntry::fromLines($lines);
+})->each(function (LogEntry $logEntry) {
+    // Process the log entry...
+});
+$users = App\User::all()->filter(function ($user) {
+    return $user->id > 500;
+});
+$users = App\User::cursor()->filter(function ($user) {
+    return $user->id > 500;
+});
+
+foreach ($users as $user) {
+    echo $user->id;
+}
+
+Creating Lazy Collections
+To create a lazy collection instance, you should pass a PHP generator function to the collection's make method:
+
+LazyCollection::make(function () {
+    $handle = fopen('log.txt', 'r');
+
+    while (($line = fgets($handle)) !== false) {
+        yield $line;
+    }
+});
+
+The Enumerable Contract
+Almost all methods available on the Collection class are also available on the LazyCollection class. Both of these classes implement the Illuminate\Support\Enumerable contract, which defines the following methods:
+Lazy Collection Methods
+In addition to the methods defined in the Enumerable contract, the LazyCollection class contains the following methods:
+$lazyCollection = LazyCollection::times(INF)->tapEach(function ($value) {
+    dump($value);
+});
+
+// Nothing has been dumped so far...
+
+$array = $lazyCollection->take(3)->all();
+remember()
+$users = User::cursor()->remember();
+
+// No query has been executed yet...
+
+$users->take(5)->all();
+
+// The query has been executed and the first 5 users have been hydrated from the database...
+
+$users->take(20)->all();
 
