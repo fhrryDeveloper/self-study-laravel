@@ -1,0 +1,221 @@
+10/4
+File Storage
+
+Introduction
+Configuration
+-The Public Disk
+-The Local Driver
+-Driver Prerequisites
+-Caching
+Obtaining Disk Instances
+Retrieving Files
+-Downloading Files
+-File URLs
+-File Metadata
+Storing Files
+-File Uploads
+-File Visibility
+Deleting Files
+Directories
+Custom Filesystems
+
+Introduction
+The Laravel Flysystem integration provides simple to use drivers for working with local filesystems and Amazon S3.
+
+Configuration
+The filesystem configuration file is located at config/filesystems.php.
+
+The Public Disk
+To create the symbolic link, you may use the storage:link Artisan command:
+php artisan storage:link
+echo asset('storage/file.txt');
+'links' => [
+    public_path('storage') => storage_path('app/public'),
+    public_path('images') => storage_path('app/images'),
+],
+
+The Local Driver
+When using the local driver, all file operations are relative to the root directory defined in your filesystems configuration file.
+Storage::disk('local')->put('file.txt', 'Contents');
+
+Permissions
+The public visibility translates to 0755 for directories and 0644 for files.
+'local' => [
+    'driver' => 'local',
+    'root' => storage_path('app'),
+    'permissions' => [
+        'file' => [
+            'public' => 0664,
+            'private' => 0600,
+        ],
+        'dir' => [
+            'public' => 0775,
+            'private' => 0700,
+        ],
+    ],
+],
+
+Driver Prerequisites
+Composer Packages
+Before using the SFTP or S3 drivers, you will need to install the appropriate package via Composer:
+SFTP: league/flysystem-sftp ~1.0
+Amazon S3: league/flysystem-aws-s3-v3 ~1.0
+CachedAdapter: league/flysystem-cached-adapter ~1.0
+S3 Driver Configuration
+The S3 driver configuration information is located in your config/filesystems.php configuration file. 
+FTP Driver Configuration
+Laravel's Flysystem integrations works great with FTP; however, a sample configuration is not included with the framework's default filesystems.php configuration file.
+SFTP Driver Configuration
+Laravel's Flysystem integrations works great with SFTP; however, a sample configuration is not included with the framework's default filesystems.php configuration file.
+'sftp' => [
+    'driver' => 'sftp',
+    'host' => 'example.com',
+    'username' => 'your-username',
+    'password' => 'your-password',
+],
+
+Caching
+To enable caching for a given disk, you may add a cache directive to the disk's configuration options. 
+'s3' => [
+    'driver' => 's3',
+    'cache' => [
+        'store' => 'memcached',
+        'expire' => 600,
+        'prefix' => 'cache-prefix',
+    ],
+],
+
+Obtaining Disk Instances
+The Storage facade may be used to interact with any of your configured disks.
+use Illuminate\Support\Facades\Storage;
+Storage::put('avatars/1', $fileContents);
+Storage::disk('s3')->put('avatars/1', $fileContents);
+
+Retrieving Files
+The get method may be used to retrieve the contents of a file.
+$contents = Storage::get('file.jpg');
+$exists = Storage::disk('s3')->exists('file.jpg');
+$missing = Storage::disk('s3')->missing('file.jpg');
+Downloading Files
+return Storage::download('file.jpg');
+return Storage::download('file.jpg', $name, $headers);
+
+File URLs
+You may use the url method to get the URL for the given file. 
+use Illuminate\Support\Facades\Storage;
+$url = Storage::url('file.jpg');
+
+Temporary URLs
+For files stored using the s3 you may create a temporary URL to a given file using the temporaryUrl method.
+$url = Storage::temporaryUrl(
+    'file.jpg', now()->addMinutes(5)
+);
+$url = Storage::temporaryUrl(
+    'file.jpg',
+    now()->addMinutes(5),
+    ['ResponseContentType' => 'application/octet-stream']
+);
+URL Host Customization
+'public' => [
+    'driver' => 'local',
+    'root' => storage_path('app/public'),
+    'url' => env('APP_URL').'/storage',
+    'visibility' => 'public',
+],
+
+File Metadata
+$size = Storage::size('file.jpg');
+The lastModified method returns the UNIX timestamp of the last time the file was modified:
+$time = Storage::lastModified('file.jpg');
+
+Storing Files
+Storage::put('file.jpg', $contents);
+Storage::put('file.jpg', $resource);
+Automatic Streaming
+If you would like Laravel to automatically manage streaming a given file to your storage location, you may use the putFile or putFileAs method.
+Storage::putFile('photos', new File('/path/to/photo'));
+Storage::putFileAs('photos', new File('/path/to/photo'), 'photo.jpg');
+Storage::putFile('photos', new File('/path/to/photo'), 'public');
+Prepending & Appending To Files
+Storage::prepend('file.log', 'Prepended Text');
+Storage::append('file.log', 'Appended Text');
+Copying & Moving Files
+Storage::copy('old/file.jpg', 'new/file.jpg');
+Storage::move('old/file.jpg', 'new/file.jpg');
+
+File Uploads
+  public function update(Request $request)
+    {
+        $path = $request->file('avatar')->store('avatars');
+
+        return $path;
+    }
+$path = Storage::putFile('avatars', $request->file('avatar'));
+$path = $request->file('avatar')->storeAs(
+    'avatars', $request->user()->id
+);
+$path = Storage::putFileAs(
+    'avatars', $request->file('avatar'), $request->user()->id
+);
+Specifying A Disk
+$path = $request->file('avatar')->store(
+    'avatars/'.$request->user()->id, 's3'
+);
+Other File Information
+$name = $request->file('avatar')->getClientOriginalName();
+$extension = $request->file('avatar')->extension();
+
+File Visibility
+use Illuminate\Support\Facades\Storage;
+
+Storage::put('file.jpg', $contents, 'public');
+If the file has already been stored, its visibility can be retrieved and set via the getVisibility and setVisibility methods:
+
+$visibility = Storage::getVisibility('file.jpg');
+
+Storage::setVisibility('file.jpg', 'public');
+$path = $request->file('avatar')->storePublicly('avatars', 's3');
+
+$path = $request->file('avatar')->storePubliclyAs(
+    'avatars',
+    $request->user()->id,
+    's3'
+);
+Deleting Files
+use Illuminate\Support\Facades\Storage;
+Storage::delete('file.jpg');
+Storage::delete(['file.jpg', 'file2.jpg']);
+Storage::disk('s3')->delete('folder_path/file_name.jpg');
+
+Directories
+Get All Files Within A Directory
+$files = Storage::files($directory);
+$files = Storage::allFiles($directory);
+Get All Directories Within A Directory
+$directories = Storage::directories($directory);
+$directories = Storage::allDirectories($directory);
+Create A Directory
+The makeDirectory method will create the given directory, including any needed subdirectories:
+Storage::makeDirectory($directory);
+Delete A Directory
+Finally, the deleteDirectory method may be used to remove a directory and all of its files:
+
+Custom Filesystems
+composer require spatie/flysystem-dropbox
+Next, you should create a service provider such as DropboxServiceProvider.
+public function boot()
+    {
+        Storage::extend('dropbox', function ($app, $config) {
+            $client = new DropboxClient(
+                $config['authorization_token']
+            );
+
+            return new Filesystem(new DropboxAdapter($client));
+        });
+    }
+'providers' => [
+    // ...
+    App\Providers\DropboxServiceProvider::class,
+];
+Once you have created and registered the extension's service provider, you may use the dropbox driver in your config/filesystems.php configuration file.
+
