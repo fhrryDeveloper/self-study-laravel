@@ -472,3 +472,195 @@ public function boot()
 ];
 Once you have created and registered the extension's service provider, you may use the dropbox driver in your config/filesystems.php configuration file.
 
+10/7
+HTTP Client
+
+Introduction
+Making Requests
+-Request Data
+-Headers
+-Authentication
+-Timeout
+-Retries
+-Error Handling
+-Guzzle Options
+Testing
+-Faking Responses
+-Inspecting Requests
+
+Introduction
+Laravel provides an expressive, minimal API around the Guzzle HTTP client, allowing you to quickly make outgoing HTTP requests to communicate with other web applications.
+composer require guzzlehttp/guzzle
+
+Making Requests
+To make requests, you may use the get, post, put, patch, and delete methods. 
+use Illuminate\Support\Facades\Http;
+$response = Http::get('http://test.com');
+$response->body() : string;
+$response->json() : array|mixed;
+$response->status() : int;
+$response->ok() : bool;
+$response->successful() : bool;
+$response->failed() : bool;
+$response->serverError() : bool;
+$response->clientError() : bool;
+$response->header($header) : string;
+$response->headers() : array;
+return Http::get('http://test.com/users/1')['name'];
+
+Request Data
+Of course, it is common when using POST, PUT, and PATCH to send additional data with your request. 
+$response = Http::post('http://test.com/users', [
+    'name' => 'Steve',
+    'role' => 'Network Administrator',
+]);
+GET Request Query Parameters
+$response = Http::get('http://test.com/users', [
+    'name' => 'Taylor',
+    'page' => 1,
+]);
+Sending Form URL Encoded Requests
+$response = Http::asForm()->post('http://test.com/users', [
+    'name' => 'Sara',
+    'role' => 'Privacy Consultant',
+]);
+Sending A Raw Request Body
+$response = Http::withBody(
+    base64_encode($photo), 'image/jpeg'
+)->post('http://test.com/photo');
+Multi-Part Requests
+$response = Http::attach(
+    'attachment', file_get_contents('photo.jpg'), 'photo.jpg'
+)->post('http://test.com/attachments');
+$photo = fopen('photo.jpg', 'r');
+$response = Http::attach(
+    'attachment', $photo, 'photo.jpg'
+)->post('http://test.com/attachments');
+
+Headers
+$response = Http::withHeaders([
+    'X-First' => 'foo',
+    'X-Second' => 'bar'
+])->post('http://test.com/users', [
+    'name' => 'Taylor',
+]);
+Authentication
+$response = Http::withBasicAuth('taylor@laravel.com', 'secret')->post(...);
+$response = Http::withDigestAuth('taylor@laravel.com', 'secret')->post(...);
+Bearer Tokens
+$response = Http::withToken('token')->post(...);
+
+Timeout
+The timeout method may be used to specify the maximum number of seconds to wait for a response:
+$response = Http::timeout(3)->get(...);
+
+Retries
+If you would like HTTP client to automatically retry the request if a client or server error occurs, you may use the retry method. 
+$response = Http::retry(3, 100)->post(...);
+
+Error Handling
+$response->successful();
+$response->failed();
+$response->clientError();
+$response->serverError();
+Throwing Exceptions
+If you have a response instance and would like to throw an instance of Illuminate\Http\Client\RequestException if the response is a client or server error, you may use the throw method:
+$response->throw();
+return $response['user']['id'];
+return Http::post(...)->throw()->json();
+
+Guzzle Options
+$response = Http::withOptions([
+    'debug' => true,
+])->get('http://test.com/users');
+
+Testing
+Many Laravel services provide functionality to help you easily and expressively write tests, and Laravel's HTTP wrapper is no exception. 
+
+Faking Responses
+Http::fake();
+$response = Http::post(...);
+Faking Specific URLs
+Http::fake([
+    'github.com/*' => Http::response(['foo' => 'bar'], 200, ['Headers']),
+    'google.com/*' => Http::response('Hello World', 200, ['Headers']),
+]);
+Http::fake([
+    'github.com/*' => Http::response(['foo' => 'bar'], 200, ['Headers']),
+    '*' => Http::response('Hello World', 200, ['Headers']),
+]);
+Faking Response Sequences
+Http::fake([
+    'github.com/*' => Http::sequence()
+                            ->push('Hello World', 200)
+                            ->push(['foo' => 'bar'], 200)
+                            ->pushStatus(404),
+]);
+Http::fake([
+    'github.com/*' => Http::sequence()
+                            ->push('Hello World', 200)
+                            ->push(['foo' => 'bar'], 200)
+                            ->whenEmpty(Http::response()),
+]);
+Http::fakeSequence()
+        ->push('Hello World', 200)
+        ->whenEmpty(Http::response());
+Fake Callback
+Http::fake(function ($request) {
+    return Http::response('Hello World', 200);
+});
+
+Inspecting Requests
+Http::fake();
+
+Http::withHeaders([
+    'X-First' => 'foo',
+])->post('http://test.com/users', [
+    'name' => 'Taylor',
+    'role' => 'Developer',
+]);
+
+Http::assertSent(function ($request) {
+    return $request->hasHeader('X-First', 'foo') &&
+           $request->url() == 'http://test.com/users' &&
+           $request['name'] == 'Taylor' &&
+           $request['role'] == 'Developer';
+});
+Http::fake();
+
+Http::post('http://test.com/users', [
+    'name' => 'Taylor',
+    'role' => 'Developer',
+]);
+
+Http::assertNotSent(function (Request $request) {
+    return $request->url() === 'http://test.com/posts';
+});
+Http::fake();
+Http::assertNothingSent();
+
+Mail
+
+Introduction
+-Configuration
+-Driver Prerequisites
+Generating Mailables
+Writing Mailables
+-Configuring The Sender
+-Configuring The View
+-View Data
+-Attachments
+-Inline Attachments
+-Customizing The SwiftMailer Message
+Markdown Mailables
+-Generating Markdown Mailables
+-Writing Markdown Messages
+-Customizing The Components
+Sending Mail
+-Queueing Mail
+Rendering Mailables
+-Previewing Mailables In The Browser
+Localizing Mailables
+Mail & Local Development
+Events
+
