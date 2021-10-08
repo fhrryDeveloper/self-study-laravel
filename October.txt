@@ -664,3 +664,314 @@ Localizing Mailables
 Mail & Local Development
 Events
 
+10/8
+Introduction
+Laravel provides a clean, simple API over the popular SwiftMailer library with drivers for SMTP, Mailgun, Postmark, Amazon SES, and sendmail, allowing you to quickly get started sending mail through a local or cloud based service of your choice.
+
+Configuration
+Laravel's email services may be configured via the mail configuration file. 
+
+Driver Prerequisites
+composer require guzzlehttp/guzzle
+Mailgun Driver
+To use the Mailgun driver, first install Guzzle, then set the default option in your config/mail.php configuration file to mailgun. 
+'mailgun' => [
+    'domain' => 'your-mailgun-domain',
+    'secret' => 'your-mailgun-key',
+],
+'mailgun' => [
+    'domain' => 'your-mailgun-domain',
+    'secret' => 'your-mailgun-key',
+    'endpoint' => 'api.eu.mailgun.net',
+],
+Postmark Driver
+To use the Postmark driver, install Postmark's SwiftMailer transport via Composer:
+composer require wildbit/swiftmailer-postmark
+'postmark' => [
+    'token' => 'your-postmark-token',
+],
+SES Driver
+"aws/aws-sdk-php": "~3.0"
+'ses' => [
+    'key' => 'your-ses-key',
+    'secret' => 'your-ses-secret',
+    'region' => 'ses-region',  // e.g. us-east-1
+],
+'ses' => [
+    'key' => 'your-ses-key',
+    'secret' => 'your-ses-secret',
+    'region' => 'ses-region',  // e.g. us-east-1
+    'options' => [
+        'ConfigurationSetName' => 'MyConfigurationSet',
+        'Tags' => [
+            [
+                'Name' => 'foo',
+                'Value' => 'bar',
+            ],
+        ],
+    ],
+],
+Generating Mailables
+In Laravel, each type of email sent by your application is represented as a "mailable" class. 
+php artisan make:mail OrderShipped
+
+Writing Mailables
+All of a mailable class' configuration is done in the build method. 
+
+Configuring The Sender
+Using The from Method
+First, let's explore configuring the sender of the email.
+public function build()
+{
+    return $this->from('example@example.com')
+                ->view('emails.orders.shipped');
+}
+Using A Global from Address
+'from' => ['address' => 'example@example.com', 'name' => 'App Name'],
+'reply_to' => ['address' => 'example@example.com', 'name' => 'App Name'],
+
+Configuring The View
+public function build()
+{
+    return $this->view('emails.orders.shipped');
+}
+Plain Text Emails
+If you would like to define a plain-text version of your email, you may use the text method.
+public function build()
+{
+    return $this->view('emails.orders.shipped')
+                ->text('emails.orders.shipped_plain');
+}
+View Data
+Via Public Properties
+Typically, you will want to pass some data to your view that you can utilize when rendering the email's HTML. 
+public function __construct(Order $order)
+    {
+        $this->order = $order;
+    }
+    public function build()
+    {
+        return $this->view('emails.orders.shipped');
+    }
+<div>
+    Price: {{ $order->price }}
+</div>
+Via The with Method:
+public function build()
+    {
+        return $this->view('emails.orders.shipped')
+                    ->with([
+                        'orderName' => $this->order->name,
+                        'orderPrice' => $this->order->price,
+                    ]);
+    }
+<div>
+    Price: {{ $orderPrice }}
+</div>
+Attachments
+public function build()
+{
+    return $this->view('emails.orders.shipped')
+                ->attach('/path/to/file');
+}
+public function build()
+{
+    return $this->view('emails.orders.shipped')
+                ->attach('/path/to/file', [
+                    'as' => 'name.pdf',
+                    'mime' => 'application/pdf',
+                ]);
+}
+Attaching Files from Disk
+If you have stored a file on one of your filesystem disks, you may attach it to the email using the attachFromStorage method:
+public function build()
+{
+   return $this->view('emails.orders.shipped')
+               ->attachFromStorage('/path/to/file');
+}
+public function build()
+{
+   return $this->view('emails.orders.shipped')
+               ->attachFromStorage('/path/to/file', 'name.pdf', [
+                   'mime' => 'application/pdf'
+               ]);
+}
+public function build()
+{
+   return $this->view('emails.orders.shipped')
+               ->attachFromStorageDisk('s3', '/path/to/file');
+}
+Raw Data Attachments
+The attachData method may be used to attach a raw string of bytes as an attachment.
+public function build()
+{
+    return $this->view('emails.orders.shipped')
+                ->attachData($this->pdf, 'name.pdf', [
+                    'mime' => 'application/pdf',
+                ]);
+}
+
+Inline Attachments
+<body>
+    Here is an image:
+
+    <img src="{{ $message->embed($pathToImage) }}">
+</body>
+Embedding Raw Data Attachments
+If you already have a raw data string you wish to embed into an email template, you may use the embedData method on the $message variable:
+<body>
+    Here is an image from raw data:
+
+    <img src="{{ $message->embedData($data, $name) }}">
+</body>
+
+Customizing The SwiftMailer Message
+public function build()
+{
+    $this->view('emails.orders.shipped');
+
+    $this->withSwiftMessage(function ($message) {
+        $message->getHeaders()
+                ->addTextHeader('Custom-Header', 'HeaderValue');
+    });
+}
+
+Markdown Mailables
+Markdown mailable messages allow you to take advantage of the pre-built templates and components of mail notifications in your mailables.
+
+Generating Markdown Mailables
+To generate a mailable with a corresponding Markdown template, you may use the --markdown option of the make:mail Artisan command:
+php artisan make:mail OrderShipped --markdown=emails.orders.shipped
+public function build()
+{
+    return $this->from('example@example.com')
+                ->markdown('emails.orders.shipped');
+}
+
+Writing Markdown Messages
+@component('mail::message')
+# Order Shipped
+Your order has been shipped!
+@component('mail::button', ['url' => $url])
+View Order
+@endcomponent
+Thanks,<br>
+{{ config('app.name') }}
+@endcomponent
+Button Component
+@component('mail::button', ['url' => $url, 'color' => 'success'])
+View Order
+@endcomponent
+Panel Component
+@component('mail::panel')
+This is the panel content.
+@endcomponent
+Table Component
+@component('mail::table')
+| Laravel       | Table         | Example  |
+| ------------- |:-------------:| --------:|
+| Col 2 is      | Centered      | $10      |
+| Col 3 is      | Right-Aligned | $20      |
+@endcomponent
+
+Customizing The Components
+php artisan vendor:publish --tag=laravel-mail
+
+Customizing The CSS
+After exporting the components, the resources/views/vendor/mail/html/themes directory will contain a default.css file.
+
+Sending Mail
+To send a message, use the to method on the Mail facade.
+ public function ship(Request $request, $orderId)
+    {
+        $order = Order::findOrFail($orderId);
+
+        // Ship order...
+
+        Mail::to($request->user())->send(new OrderShipped($order));
+    }
+Mail::to($request->user())
+    ->cc($moreUsers)
+    ->bcc($evenMoreUsers)
+    ->send(new OrderShipped($order));
+Looping Over Recipients
+foreach (['taylor@example.com', 'dries@example.com'] as $recipient) {
+    Mail::to($recipient)->send(new OrderShipped($order));
+}
+Sending Mail Via A Specific Mailer
+Mail::mailer('postmark')
+        ->to($request->user())
+        ->send(new OrderShipped($order));
+
+Queueing Mail
+Queueing A Mail Message
+Mail::to($request->user())
+    ->cc($moreUsers)
+    ->bcc($evenMoreUsers)
+    ->queue(new OrderShipped($order));
+Delayed Message Queueing
+$when = now()->addMinutes(10);
+Mail::to($request->user())
+    ->cc($moreUsers)
+    ->bcc($evenMoreUsers)
+    ->later($when, new OrderShipped($order));
+Pushing To Specific Queues
+$message = (new OrderShipped($order))
+                ->onConnection('sqs')
+                ->onQueue('emails');
+
+Mail::to($request->user())
+    ->cc($moreUsers)
+    ->bcc($evenMoreUsers)
+    ->queue($message);
+Queueing By Default
+class OrderShipped extends Mailable implements ShouldQueue
+{
+    //
+}
+
+Rendering Mailables
+$invoice = App\Invoice::find(1);
+return (new App\Mail\InvoicePaid($invoice))->render();
+
+Previewing Mailables In The Browser
+Route::get('mailable', function () {
+    $invoice = App\Invoice::find(1);
+    return new App\Mail\InvoicePaid($invoice);
+});
+
+Localizing Mailables
+Mail::to($request->user())->locale('es')->send(
+    new OrderShipped($order)
+);
+User Preferred Locales
+public function preferredLocale()
+    {
+        return $this->locale;
+    }
+Mail::to($request->user())->send(new OrderShipped($order));
+
+Mail & Local Development
+When developing an application that sends email, you probably don't want to actually send emails to live email addresses. Laravel provides several ways to "disable" the actual sending of emails during local development.
+Log Driver
+Instead of sending your emails, the log mail driver will write all email messages to your log files for inspection.
+Universal To
+Another solution provided by Laravel is to set a universal recipient of all emails sent by the framework. 
+'to' => [
+    'address' => 'example@example.com',
+    'name' => 'Example'
+],
+Mailtrap
+Finally, you may use a service like Mailtrap and the smtp driver to send your email messages to a "dummy" mailbox where you may view them in a true email client.
+
+Events
+Laravel fires two events during the process of sending mail messages.
+protected $listen = [
+    'Illuminate\Mail\Events\MessageSending' => [
+        'App\Listeners\LogSendingMessage',
+    ],
+    'Illuminate\Mail\Events\MessageSent' => [
+        'App\Listeners\LogSentMessage',
+    ],
+];
+
