@@ -975,3 +975,50 @@ protected $listen = [
     ],
 ];
 
+10/11
+Notifications
+
+Introduction
+Creating Notifications
+Sending Notifications
+-Using The Notifiable Trait
+-Using The Notification Facade
+-Specifying Delivery Channels
+-Queueing Notifications
+-On-Demand Notifications
+Mail Notifications
+-Formatting Mail Messages
+-Customizing The Sender
+-Customizing The Recipient
+-Customizing The Subject
+-Customizing The Mailer
+-Customizing The Templates
+-Previewing Mail Notifications
+Markdown Mail Notifications
+-Generating The Message
+-Writing The Message
+-Customizing The Components
+Database Notifications
+-Prerequisites
+-Formatting Database Notifications
+-Accessing The Notifications
+-Marking Notifications As Read
+Broadcast Notifications
+-Prerequisites
+-Formatting Broadcast Notifications
+-Listening For Notifications
+SMS Notifications
+-Prerequisites
+-Formatting SMS Notifications
+-Formatting Shortcode Notifications
+-Customizing The "From" Number
+-Routing SMS Notifications
+Slack Notifications
+-Prerequisites
+-Formatting Slack Notifications
+-Slack Attachments
+-Routing Slack Notifications
+Localizing Notifications
+Notification Events
+Custom Channels
+
