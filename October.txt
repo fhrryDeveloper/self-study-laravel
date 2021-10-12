@@ -1022,3 +1022,53 @@ Localizing Notifications
 Notification Events
 Custom Channels
 
+10/12
+Package Development
+
+Introduction
+-A Note On Facades
+Package Discovery
+Service Providers
+Resources
+-Configuration
+-Migrations
+-Factories
+-Routes
+-Translations
+-Views
+-View Components
+Commands
+Public Assets
+Publishing File Groups
+
+Queues
+
+Introduction
+-Connections Vs. Queues
+-Driver Notes & Prerequisites
+Creating Jobs
+-Generating Job Classes
+-Class Structure
+-Job Middleware
+Dispatching Jobs
+-Delayed Dispatching
+-Synchronous Dispatching
+-Job Chaining
+-Customizing The Queue & Connection
+-Specifying Max Job Attempts / Timeout Values
+-Rate Limiting
+-Error Handling
+Queueing Closures
+Running The Queue Worker
+-Queue Priorities
+-Queue Workers & Deployment
+-Job Expirations & Timeouts
+Supervisor Configuration
+Dealing With Failed Jobs
+-Cleaning Up After Failed Jobs
+-Failed Job Events
+-Retrying Failed Jobs
+-Ignoring Missing Models
+Job Events
+
+
