@@ -1072,4 +1072,20 @@ Dealing With Failed Jobs
 -Ignoring Missing Models
 Job Events
 
+10/14
+Task Scheduling
+
+Introduction
+Defining Schedules
+-Scheduling Artisan Commands
+-Scheduling Queued Jobs
+-Scheduling Shell Commands
+-Schedule Frequency Options
+-Timezones
+-Preventing Task Overlaps
+-Running Tasks On One Server
+-Background Tasks
+-Maintenance Mode
+Task Output
+Task Hooks
 
