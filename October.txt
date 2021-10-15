@@ -1089,3 +1089,20 @@ Defining Schedules
 Task Output
 Task Hooks
 
+10/15
+Task Scheduling
+
+Introduction
+Defining Schedules
+-Scheduling Artisan Commands
+-Scheduling Queued Jobs
+-Scheduling Shell Commands
+-Schedule Frequency Options
+-Timezones
+-Preventing Task Overlaps
+-Running Tasks On One Server
+-Background Tasks
+-Maintenance Mode
+Task Output
+Task Hooks
+
