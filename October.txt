@@ -1116,3 +1116,82 @@ Configuration
 -Running Raw SQL Queries
 Listening For Query Events
 Database Transactions
+
+10/19
+Database: Query Builder
+
+Introduction
+Retrieving Results
+-Chunking Results
+-Aggregates
+Selects
+Raw Expressions
+Joins
+Unions
+Where Clauses
+-Parameter Grouping
+-Where Exists Clauses
+-Subquery Where Clauses
+-JSON Where Clauses
+Ordering, Grouping, Limit & Offset
+Conditional Clauses
+Inserts
+Updates
+-Updating JSON Columns
+-Increment & Decrement
+Deletes
+Pessimistic Locking
+Debugging
+
+Database: Pagination
+
+Introduction
+Basic Usage
+-Paginating Query Builder Results
+-Paginating Eloquent Results
+-Manually Creating A Paginator
+Displaying Pagination Results
+-Converting Results To JSON
+Customizing The Pagination View
+-Using Tailwind
+Paginator Instance Methods
+
+Database: Migrations
+
+Introduction
+Generating Migrations
+Migration Structure
+Running Migrations
+-Rolling Back Migrations
+Tables
+-Creating Tables
+-Renaming / Dropping Tables
+Columns
+-Creating Columns
+-Column Modifiers
+-Modifying Columns
+-Dropping Columns
+Indexes
+-Creating Indexes
+-Renaming Indexes
+-Dropping Indexes
+-Foreign Key Constraints
+
+Database: Seeding
+
+Introduction
+Writing Seeders
+-Using Model Factories
+-Calling Additional Seeders
+Running Seeders
+
+Redis
+
+Introduction
+-Configuration
+-Predis
+-PhpRedis
+Interacting With Redis
+-Pipelining Commands
+Pub / Sub
+
