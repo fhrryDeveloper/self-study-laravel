@@ -1195,3 +1195,68 @@ Interacting With Redis
 -Pipelining Commands
 Pub / Sub
 
+Eloquent: Getting Started
+
+Introduction
+Defining Models
+-Eloquent Model Conventions
+-Default Attribute Values
+Retrieving Models
+-Collections
+-Chunking Results
+-Advanced Subqueries
+Retrieving Single Models / Aggregates
+-Retrieving Aggregates
+Inserting & Updating Models
+-Inserts
+-Updates
+-Mass Assignment
+-Other Creation Methods
+Deleting Models
+-Soft Deleting
+-Querying Soft Deleted Models
+Replicating Models
+Query Scopes
+-Global Scopes
+-Local Scopes
+Comparing Models
+Events
+-Using Closures
+-Observers
+-Muting Events
+
+10/20
+Eloquent: Relationships
+
+Introduction
+Defining Relationships
+-One To One
+-One To Many
+-One To Many (Inverse)
+-Many To Many
+-Defining Custom Intermediate Table Models
+-Has One Through
+-Has Many Through
+Polymorphic Relationships
+-One To One
+-One To Many
+-Many To Many
+-Custom Polymorphic Types
+Dynamic Relationships
+Querying Relations
+-Relationship Methods Vs. Dynamic Properties
+-Querying Relationship Existence
+-Querying Relationship Absence
+-Querying Polymorphic Relationships
+-Counting Related Models
+-Counting Related Models On Polymorphic Relationships
+Eager Loading
+-Constraining Eager Loads
+-Lazy Eager Loading
+Inserting & Updating Related Models
+-The save Method
+-The create Method
+-Belongs To Relationships
+-Many To Many Relationships
+Touching Parent Timestamps
+
