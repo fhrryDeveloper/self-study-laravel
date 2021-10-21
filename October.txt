@@ -1260,3 +1260,34 @@ Inserting & Updating Related Models
 -Many To Many Relationships
 Touching Parent Timestamps
 
+10/21
+Eloquent: Collections
+
+Introduction
+Available Methods
+Custom Collections
+
+Eloquent: API Resources
+
+Introduction
+Generating Resources
+Concept Overview
+-Resource Collections
+Writing Resources
+-Data Wrapping
+-Pagination
+-Conditional Attributes
+-Conditional Relationships
+-Adding Meta Data
+Resource Responses
+
+Eloquent: Serialization
+
+Introduction
+Serializing Models & Collections
+-Serializing To Arrays
+-Serializing To JSON
+Hiding Attributes From JSON
+Appending Values To JSON
+Date Serialization
+
