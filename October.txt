@@ -1291,3 +1291,24 @@ Hiding Attributes From JSON
 Appending Values To JSON
 Date Serialization
 
+10/24
+Testing: Getting Started
+
+Introduction
+Environment
+Creating & Running Tests
+-Artisan Test Runner
+
+HTTP Tests
+
+Introduction
+-Customizing Request Headers
+-Cookies
+-Debugging Responses
+Session / Authentication
+Testing JSON APIs
+Testing File Uploads
+Available Assertions
+-Response Assertions
+-Authentication Assertions
+
