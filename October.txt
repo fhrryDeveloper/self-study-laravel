@@ -1312,3 +1312,57 @@ Available Assertions
 -Response Assertions
 -Authentication Assertions
 
+10/25
+Console Tests
+
+Introduction
+Expecting Input / Output
+
+Laravel Dusk
+
+Introduction
+Installation
+-Managing ChromeDriver Installations
+-Using Other Browsers
+Getting Started
+-Generating Tests
+-Running Tests
+-Environment Handling
+-Creating Browsers
+-Browser Macros
+-Authentication
+-Database Migrations
+-Cookies
+-Taking A Screenshot
+-Storing Console Output To Disk
+-Storing Page Source To Disk
+Interacting With Elements
+-Dusk Selectors
+-Clicking Links
+-Text, Values, & Attributes
+-Using Forms
+-Attaching Files
+-Using The Keyboard
+-Using The Mouse
+-JavaScript Dialogs
+-Scoping Selectors
+-Waiting For Elements
+-Scrolling An Element Into View
+-Making Vue Assertions
+Available Assertions
+Pages
+-Generating Pages
+-Configuring Pages
+-Navigating To Pages
+-Shorthand Selectors
+-Page Methods
+Components
+-Generating Components
+-Using Components
+Continuous Integration
+-CircleCI
+-Codeship
+-Heroku CI
+-Travis CI
+-GitHub Actions
+
