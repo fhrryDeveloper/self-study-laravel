@@ -1367,3 +1367,34 @@ Continuous Integration
 -GitHub Actions
 
 10/30
+11/3
+Database Testing
+
+Introduction
+Generating Factories
+Resetting The Database After Each Test
+Writing Factories
+-Extending Factories
+-Factory States
+-Factory Callbacks
+Using Factories
+-Creating Models
+-Persisting Models
+-Relationships
+Using Seeds
+Available Assertions
+
+Mocking
+
+Introduction
+Mocking Objects
+Bus Fake
+Event Fake
+-Scoped Event Fakes
+HTTP Fake
+Mail Fake
+Notification Fake
+Queue Fake
+Storage Fake
+Facades
+
