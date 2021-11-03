@@ -1,0 +1,56 @@
+11/5
+Laravel Cashier
+
+Introduction
+Upgrading Cashier
+Installation
+Configuration
+-Billable Model
+-API Keys
+-Currency Configuration
+-Logging
+Customers
+-Retrieving Customers
+-Creating Customers
+-Updating Customers
+-Billing Portal
+Payment Methods
+-Storing Payment Methods
+-Retrieving Payment Methods
+-Determining If A User Has A Payment Method
+-Updating The Default Payment Method
+-Adding Payment Methods
+-Deleting Payment Methods
+Subscriptions
+-Creating Subscriptions
+-Checking Subscription Status
+-Changing Plans
+-Subscription Quantity
+-Multiplan Subscriptions
+-Subscription Taxes
+-Subscription Anchor Date
+-Cancelling Subscriptions
+-Resuming Subscriptions
+Subscription Trials
+-With Payment Method Up Front
+-Without Payment Method Up Front
+-Extending Trials
+Handling Stripe Webhooks
+-Defining Webhook Event Handlers
+-Failed Subscriptions
+-Verifying Webhook Signatures
+Single Charges
+-Simple Charge
+-Charge With Invoice
+-Refunding Charges
+Invoices
+-Retrieving Invoices
+-Generating Invoice PDFs
+Handling Failed Payments
+Strong Customer Authentication (SCA)
+-Payments Requiring Additional Confirmation
+-Off-session Payment Notifications
+Stripe SDK
+Testing
+
+
