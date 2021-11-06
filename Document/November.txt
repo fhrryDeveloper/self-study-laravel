@@ -53,4 +53,19 @@ Strong Customer Authentication (SCA)
 Stripe SDK
 Testing
 
+11/6
+Official Packages
+
+Cashier (Stripe)
+Cashier (Paddle)
+Cashier (Mollie)
+Dusk
+Envoy
+Horizon
+Passport
+Sanctum
+Scout
+Socialite
+Telescope
+
 
